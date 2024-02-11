@@ -1,0 +1,234 @@
+import tkinter as tk
+
+class AnimatedGIFLabel(tk.Label):
+    def __init__(self, master, gif_path, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.frames = []
+        self.gif = tk.PhotoImage(file=gif_path)
+        
+        try:
+            for i in range(100):  # Assuming the GIF has fewer than 100 frames
+                frame = self.gif.subsample(3, 3).copy()  # Adjust subsample as needed
+                self.frames.append(tk.PhotoImage(file=gif_path, format=f"gif -index {i}"))
+        except tk.TclError:
+            pass  # End of frames
+        
+        self.current_frame = 0
+        self.show_frame()
+
+    def show_frame(self):
+        frame = self.frames[self.current_frame]
+        self.configure(image=frame)
+        self.current_frame = (self.current_frame + 1) % len(self.frames)
+        self.after(100, self.show_frame)  # Adjust the frame delay as needed
+class SubSubMenu6a(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.configure(width=640, height=480)
+        self.pack_propagate(False)
+
+        button_width = 260
+        button_height = 60
+        # Center the button vertically
+        button_y = (480 - button_height) // 2
+
+        # Label
+        tk.Label(self, text="Well Done Again My Friend").pack(pady=10)
+
+        # Button
+        return_button = tk.Button(self, text="Return to 'You Want to Hear Me Sing' Menu",
+                                  command=lambda: master.show_frame("you want to hear me sing"))
+        return_button.place(x=(640 - button_width) // 2, y=button_y, width=button_width, height=button_height)
+
+class SubSubMenu6b(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.configure(width=640, height=480)
+        self.pack_propagate(False)
+
+        button_width = 260
+        button_height = 60
+        # Center the button vertically
+        button_y = (480 - button_height) // 2
+
+        # Label
+        tk.Label(self, text="Can't Take My Eyes Off You").pack(pady=10)
+
+        # Button
+        return_button = tk.Button(self, text="Return to 'You Want to Hear Me Sing' Menu",
+                                  command=lambda: master.show_frame("you want to hear me sing"))
+        return_button.place(x=(640 - button_width) // 2, y=button_y, width=button_width, height=button_height)
+# Definitions for GenericSubMenu
+class GenericSubMenu(tk.Frame):
+    def __init__(self, master, option_text):
+        super().__init__(master)
+        self.configure(width=640, height=480)  # Optional: Set if you want to enforce frame size
+        self.pack_propagate(False)  # Prevent the frame from resizing to fit its content
+
+        button_width = 200
+        button_height = 60
+        total_height = 480  # Total height of the window
+
+        # Label
+        label = tk.Label(self, text=f"{option_text}")
+        label.pack(pady=10)  # Keep using pack for simplicity for components that don't need precise placement
+
+        # Return to Main Menu Button
+        return_button = tk.Button(self, text="Return to Main Menu", command=lambda: master.show_frame("PaginatedMenu"))
+        
+        # Calculate y position to center the button vertically in the window
+        button_y = (total_height - button_height) // 2
+        return_button.place(x=(640 - button_width) // 2, y=button_y, width=button_width, height=button_height)
+# Special SubMenu class for "you want to hear me sing"
+class SubMenu6(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.configure(width=640, height=480)
+        self.pack_propagate(False)
+
+        # Assuming a vertical layout where buttons are stacked, calculate the starting y position
+        button_width = 200
+        button_height = 60
+        space_between_buttons = 10  # Space between buttons
+
+        # Calculate vertical positions
+        total_buttons_height = 3 * button_height + 2 * space_between_buttons  # For 3 buttons
+        start_y = (480 - total_buttons_height) // 2
+
+        # Label
+        tk.Label(self, text="'You Want to Hear Me Sing'").pack(pady=10)
+
+        # Buttons
+        options = [("Well Done Again My Friend", "well done again my friend"),
+                   ("Can't Take My Eyes Off You", "cant take my eyes off you"),
+                   ("Return to Main Menu", "PaginatedMenu")]
+
+        for index, (button_text, frame_key) in enumerate(options, start=1):
+            button_y = start_y + (index - 1) * (button_height + space_between_buttons)
+            button = tk.Button(self, text=button_text, command=lambda key=frame_key: master.show_frame(key))
+            button.place(x=(640 - button_width) // 2, y=button_y, width=button_width, height=button_height)
+
+class PaginatedMenu(tk.Frame):
+    def __init__(self, master, options, options_per_page=4, command=None):
+        super().__init__(master)
+        self.master = master
+        self.options = options
+        self.options_per_page = options_per_page
+        self.current_page = 0
+        self.command = command
+        
+        # Define button dimensions and padding attributes before calling display_options
+        self.button_width_px = 200  # Set the button width
+        self.button_height_px = 60  # Set the button height
+        self.button_padding = 10  # Set the padding between buttons
+
+        self.configure(width=640, height=480)
+        self.pack_propagate(False)
+        
+        # Load and display the animated GIF before calling display_options
+        gif_path = "C:\\Users\\longp\\OneDrive\\Desktop\\emotional support device\\icegif-1171.gif"
+        self.animated_gif_label = AnimatedGIFLabel(self, gif_path)
+        self.animated_gif_label.place(x=20, y=20)  # Adjust placement as needed
+        
+        # Now that all attributes are defined, it's safe to call display_options
+        self.display_options()
+        
+        # Setup navigation buttons
+        self.setup_navigation_buttons()
+
+    def setup_navigation_buttons(self):
+        prev_button_x = 20
+        next_button_x = 640 - self.button_width_px - 20
+        nav_button_y = 480 - self.button_height_px - 20
+        
+        self.prev_button = tk.Button(self, text="Previous", command=self.previous_page)
+        self.prev_button.place(x=prev_button_x, y=nav_button_y, width=self.button_width_px, height=self.button_height_px)
+        
+        self.next_button = tk.Button(self, text="Next", command=self.next_page)
+        self.next_button.place(x=next_button_x, y=nav_button_y, width=self.button_width_px, height=self.button_height_px)
+
+    def display_options(self):
+        for widget in self.winfo_children():
+            if isinstance(widget, tk.Button) and widget not in [self.prev_button, self.next_button]:
+                widget.destroy()
+
+        start = self.current_page * self.options_per_page
+        end = min(start + self.options_per_page, len(self.options))
+        buttons_to_display = end - start
+        total_buttons_height = (self.button_height_px + self.button_padding) * buttons_to_display
+        start_y = (480 - total_buttons_height) // 2 - self.button_height_px
+
+        for index, option in enumerate(self.options[start:end], start=1):
+            button_y = start_y + (index - 1) * (self.button_height_px + self.button_padding)
+            button = tk.Button(self, text=option, command=lambda o=option: self.command(o))
+            button.place(x=320 - self.button_width_px // 2, y=button_y, width=self.button_width_px, height=self.button_height_px)
+
+    def next_page(self):
+        max_page = len(self.options) // self.options_per_page
+        if (len(self.options) % self.options_per_page) > 0:
+            max_page += 1
+        if self.current_page < max_page - 1:
+            self.current_page += 1
+            self.display_options()
+
+    def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.display_options()
+
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Emotional Support Device")
+        self.geometry("640x480")
+
+        # Define the list of options with new names
+        self.option_names = [
+            "you feel happy",
+            "you need reassurance",
+            "you feel lonely",
+            "you cant sleep",
+            "you feel overwhelmed",
+            "you want to hear me sing",
+            "you feel sick",
+            "you feel small",
+            "something i said hurt you",
+            "you think you were mean to me"
+        ]
+
+        # Initialize frames for the submenus and sub-submenus
+        self.frames = {}
+        for option_name in self.option_names:
+            if option_name == "you want to hear me sing":
+                self.frames[option_name] = SubMenu6(self)
+            else:
+                self.frames[option_name] = GenericSubMenu(self, option_name)
+
+        # Initialize the sub-submenus for "you want to hear me sing"
+        self.frames["well done again my friend"] = SubSubMenu6a(self)
+        self.frames["cant take my eyes off you"] = SubSubMenu6b(self)
+
+        # Place all frames in the grid
+        for frame in self.frames.values():
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        # Initialize the PaginatedMenu with the new option names
+        self.paginated_menu = PaginatedMenu(self, self.option_names, command=self.on_option_selected)
+        self.paginated_menu.grid(row=0, column=0, sticky="nsew")
+        self.frames["PaginatedMenu"] = self.paginated_menu
+
+        # Start with the PaginatedMenu
+        self.show_frame("PaginatedMenu")
+
+    def show_frame(self, frame_key):
+        '''Raise a frame to the front for display'''
+        frame = self.frames[frame_key]
+        frame.tkraise()
+
+    def on_option_selected(self, option_name):
+        '''Handle the option selection'''
+        self.show_frame(option_name)
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
